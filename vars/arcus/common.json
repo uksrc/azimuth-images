@@ -1,5 +1,5 @@
 {
-  "network": "97ed78b5-156c-441c-9fcb-5a26c8a4ed26",
-  "flavor": "vm.azimuth.ci.ec1.medium",
+  "network": "57add367-d205-4030-a929-d75617a7c63e",
+  "flavor": "vm.v1.small",
   "volume_type": "arcus-ceph01-rbd"
 }
