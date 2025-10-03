@@ -1,3 +1,3 @@
 {
-  "security_groups": ["default", "uksrc-ska-sg"]
+  "security_groups": ["default", "external-bastion"]
 }
