@@ -53,6 +53,14 @@
       auth-none=1
     path: /etc/rstudio/rserver.conf
 
+- name: Ensure rstudio-server systemd override directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/system/rstudio-server.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Ensure rstudio-server systemd override file is populated
   ansible.builtin.blockinfile:
     path: /etc/systemd/system/rstudio-server.service.d/override.conf
