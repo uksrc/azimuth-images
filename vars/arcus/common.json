@@ -1,6 +1,6 @@
 {
   "network": "46c8f77e-4ea1-4be7-80c3-8b2d8f28f916",
-  "flavor": "vm.v1.tiny",
+  "flavor": "698a8d46-eceb-4c55-91ff-38286bf9eabb",
   "volume_type": "arcus-ceph01-rbd",
   "disk_format": "raw"
 }
