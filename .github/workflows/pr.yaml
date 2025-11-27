@@ -28,9 +28,9 @@ jobs:
   fail_on_remote:
     runs-on: ubuntu-latest
     steps:
-      - name: PR must be from a branch in the azimuth-cloud/azimuth-images repo
+      - name: PR must be from a branch in the uksrc/azimuth-images repo
         run: |
-          if [ "${{ github.repository }}" != "azimuth-cloud/azimuth-images" ]; then
+          if [ "${{ github.repository }}" != "uksrc/azimuth-images" ]; then
             exit 1
           fi
 
