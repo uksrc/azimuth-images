@@ -49,7 +49,7 @@ jobs:
     uses: ./.github/workflows/build_test_images.yaml
     secrets: inherit
 
-  # Purge the manifest and images that we just tested from S3
+  ## Purge the manifest and images that we just tested from S3
   purge_images:
     needs:
       - build_test_images
