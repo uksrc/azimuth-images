@@ -95,10 +95,10 @@ jobs:
       - name: mkdir for mount
         run: sudo mkdir -p './${{ steps.publish-image.outputs.image-name }}'
 
-      - name: mount qcow2 file
+      - name: mount raw file
         run: >
           sudo guestmount -a
-          ${{ steps.publish-image.outputs.image-name }}.qcow2
+          ${{ steps.publish-image.outputs.image-name }}.raw
           -i --ro -o allow_other
           './${{ steps.publish-image.outputs.image-name }}'
 

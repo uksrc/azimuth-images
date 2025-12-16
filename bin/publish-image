@@ -13,21 +13,16 @@ set -euxo pipefail
 #     "${IMAGE_NAME}.qcow2"
 # fi
 # output the image size for debug reasons
-qemu-img convert \
-  -f "$IMAGE_DISK_FORMAT" \
-  -O qcow2 \
-  "$IMAGE_SOURCE_FILE" \
-  "${IMAGE_NAME}.qcow2"
-
-ls -alh "${IMAGE_NAME}.qcow2"
+mv "$IMAGE_SOURCE_FILE" "${IMAGE_NAME}.raw"
+ls -alh "${IMAGE_NAME}.raw"
 
 # create signature
-cosign sign-blob "${IMAGE_NAME}.qcow2" --bundle "${IMAGE_NAME}.cosign.bundle" -y
+cosign sign-blob "${IMAGE_NAME}.raw" --bundle "${IMAGE_NAME}.cosign.bundle" -y
 
 # test the bundle works validates
-cosign verify-blob "${IMAGE_NAME}.qcow2" --bundle "${IMAGE_NAME}.cosign.bundle" \
+cosign verify-blob "${IMAGE_NAME}.raw" --bundle "${IMAGE_NAME}.cosign.bundle" \
   --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
-  --certificate-identity-regexp="https://github.com/azimuth-cloud/azimuth-images/.github/.*"
+  --certificate-identity-regexp="https://github.com/uksrc/azimuth-images/.github/.*"
 
 # Upload the compressed image to S3
 cat <<EOF >~/.s3cfg
@@ -38,19 +33,19 @@ secret_key = ${S3_SECRET_KEY}
 use_https = True
 signurl_use_https = True
 EOF
-s3cmd put "${IMAGE_NAME}.qcow2" "s3://$S3_BUCKET"
+s3cmd put "${IMAGE_NAME}.raw" "s3://$S3_BUCKET"
 s3cmd put "${IMAGE_NAME}.cosign.bundle" "s3://$S3_BUCKET"
 
 # Make a signed S3 link that lasts for one year
-# IMAGE_URL="$(s3cmd signurl "s3://$S3_BUCKET/${IMAGE_NAME}.qcow2" +31536000)"
+# IMAGE_URL="$(s3cmd signurl "s3://$S3_BUCKET/${IMAGE_NAME}.raw" +31536000)"
 # COSIGN_BUNDLE_URL="$(s3cmd signurl "s3://$S3_BUCKET/${IMAGE_NAME}.cosign.bundle" +31536000)"
 
 # Use public Swift URL instead of signed link
-IMAGE_URL="https://${S3_HOST}${S3_HOST_PUBLIC_PATH}/${S3_BUCKET}/${IMAGE_NAME}.qcow2"
+IMAGE_URL="https://${S3_HOST}${S3_HOST_PUBLIC_PATH}/${S3_BUCKET}/${IMAGE_NAME}.raw"
 COSIGN_BUNDLE_URL="https://${S3_HOST}${S3_HOST_PUBLIC_PATH}/${S3_BUCKET}/${IMAGE_NAME}.cosign.bundle"
 
 # Get the checksum of the image
-IMAGE_CHECKSUM="sha256:$(sha256sum "${IMAGE_NAME}.qcow2" | awk '{ print $1 }')"
+IMAGE_CHECKSUM="sha256:$(sha256sum "${IMAGE_NAME}.raw" | awk '{ print $1 }')"
 
 # Produce outputs
 {
