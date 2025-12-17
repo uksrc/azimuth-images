@@ -228,6 +228,9 @@ jobs:
             generate_tests_caas_test_case_slurm_enabled: false
             generate_tests_kubernetes_test_cases_latest_only: false
             generate_tests_kubernetes_apps_suite_enabled: false
+            infra_flavor_id: 6b56d6e9-5397-4543-87fb-e0c0b6d47961
+            generate_tests_caas_test_case_workstation_param_cluster_flavor: 6b56d6e9-5397-4543-87fb-e0c0b6d47961
+            CI_S3_LOCK_BUCKET: ${{ vars.S3_BUCKET  }}
         # GitHub terminates jobs after 6 hours
         # We don't want jobs to acquire the lock then get timed out before
         # they can finish, so wait a maximum of 3 hours to acquire the lock,
