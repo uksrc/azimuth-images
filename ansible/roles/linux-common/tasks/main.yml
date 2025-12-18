@@ -11,6 +11,11 @@
       - linux-generic
     state: latest
 
+# Install the Broadcom network driver for NetXtreme-E Ethernet
+- name: Install the Broadcom network driver
+  ansible.builtin.include_role:
+    name: linux-broadcom
+
 # Enables the ansible-init system, but does not install any default playbooks
 - name: Ensure ansible-init is configured
   ansible.builtin.include_role:
