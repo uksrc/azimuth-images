@@ -110,6 +110,7 @@ jobs:
           ENVIRONMENT: ${{ vars.TARGET_CLOUD }}
           PACKER_TEMPLATE: ${{ matrix.template }}
           ENV_VAR_FILES: ${{ matrix.var-files }}
+<<<<<<< HEAD
           PKR_VAR_source_image_name: ${{ needs.ensure_source_image.outputs.source_image }}
           SKIP_SOURCE_IMAGE: "true"
 
@@ -409,3 +410,5 @@ jobs:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
+=======
+>>>>>>> b23a5cb (DAAC-891: Removing azimuth test cases stage and S3 uploading as we don't need them at the moment)
