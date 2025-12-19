@@ -56,7 +56,7 @@ source "openstack" "linux-rstudio" {
   skip_create_image = var.skip_create_image
 
   image_name = "${var.distro_name}-linux-rstudio-${local.timestamp}"
-  image_visibility = "community"
+  image_visibility = "private"
   image_disk_format = var.disk_format
 
   source_image_name = var.source_image_name
