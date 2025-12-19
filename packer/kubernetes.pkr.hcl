@@ -393,7 +393,7 @@ source "openstack" "kubernetes" {
   skip_create_image = var.skip_create_image
 
   image_name = "${var.distro_name}-kube-${var.kubernetes_semver}-${local.build_timestamp}"
-  image_visibility = "private"
+  image_visibility = "community"
   image_disk_format = var.disk_format
 
   source_image_name = var.source_image_name
