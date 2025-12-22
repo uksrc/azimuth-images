@@ -13,8 +13,8 @@ on:  # yamllint disable-line rule:truthy
   # Allow manual executions
   workflow_dispatch:
   # Run nightly
-  schedule:
-    - cron: "0 0 * * *"
+  # schedule:
+  #   - cron: "0 0 * * *"
 
 jobs:
   propose_base_image_update:
