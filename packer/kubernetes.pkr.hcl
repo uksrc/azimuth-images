@@ -402,6 +402,15 @@ source "openstack" "kubernetes" {
   security_groups = var.security_groups
   floating_ip = var.floating_ip
 
+  metadata = {
+    hw_machine_type           = "q35"
+    hw_architecture           = "x86_64"
+    hw_vif_multiqueue_enabled = true
+    hw_firmware_type          = "uefi"
+    os_type                   = "linux"
+    hw_disk_bus               = "virtio"
+  }
+
   use_blockstorage_volume = true
   volume_type = var.volume_type
   volume_size = var.volume_size
