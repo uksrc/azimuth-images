@@ -1,6 +1,12 @@
 {
+<<<<<<< HEAD
   "kubernetes_deb_version": "1.35.8-*",
   "kubernetes_rpm_version": "1.35.8",
   "kubernetes_semver": "v1.35.8",
+=======
+  "kubernetes_deb_version": "1.35.2-*",
+  "kubernetes_rpm_version": "1.35.2",
+  "kubernetes_semver": "v1.35.2",
+>>>>>>> ee400b4 (feat(DAAC-1206): add image properties for UEFI, required for GPU nodes (#3))
   "kubernetes_series": "v1.35"
 }
