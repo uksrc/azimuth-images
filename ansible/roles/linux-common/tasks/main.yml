@@ -3,7 +3,7 @@
 #  fatal: [default]: FAILED! => {"changed": false, "msg": "No package matching 'acl' is available"}
 - name: Update and upgrade apt packages
   ansible.builtin.apt:
-    upgrade: yes
+    upgrade: "dist"
     update_cache: true
     cache_valid_time: 86400 # One day
 
