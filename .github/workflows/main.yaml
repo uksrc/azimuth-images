@@ -17,6 +17,7 @@ on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   # Build, publish and test the images
