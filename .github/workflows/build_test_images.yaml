@@ -2,24 +2,31 @@
 # yamllint disable rule:line-length
 name: Build, publish and test images
 
-permissions:
-  contents: read
-  packages: write
-  # To report GitHub Actions status checks
-  statuses: write
-  security-events: write
-  id-token: write
-
 on:  # yamllint disable-line rule:truthy
   workflow_call:
+    secrets:
+      OS_CLOUDS:
+        description: clouds.yaml file
+        required: true
+      CLOUDFLARE_S3_ACCESS_KEY:
+        description: S3 access key
+        required: true
+      CLOUDFLARE_S3_SECRET_KEY:
+        description: S3 secret key
+        required: true
+
 jobs:
   read_builds:
     runs-on: ubuntu-latest
     outputs:
       builds: ${{ steps.builds-as-json.outputs.builds }}
+    permissions:
+      contents: read
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install script dependencies
         run: pip install -r ./requirements.txt
@@ -28,9 +35,41 @@ jobs:
         id: builds-as-json
         run: ./bin/builds-as-json
 
+  ensure_source_image:
+    needs:
+      - read_builds
+    runs-on: ubuntu-latest
+    outputs:
+      source_image: ${{ steps.download_source.outputs.source_image_name }}
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install script dependencies
+        run: pip install -r ./requirements.txt
+
+      - name: Write OpenStack credentials
+        run: echo "$OS_CLOUDS" > ./clouds.yaml
+        env:
+          OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
+
+      - name: Download source image and upload to OpenStack
+        id: download_source
+        run: ./bin/ensure-source-image
+        env:
+          BUILD_MATRIX: ${{ needs.read_builds.outputs.builds }}
+          REPO_ROOT: ${{ github.workspace }}
+          GH_ACTIONS_RUN: "true"
+          OS_CLOUD: ${{ vars.TARGET_CLOUD }}
+
   build_images:
     needs:
       - read_builds
+      - ensure_source_image
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -38,15 +77,17 @@ jobs:
         include: ${{ fromJson(needs.read_builds.outputs.builds) }}
     name: ${{ matrix.name }}
     permissions:
-      contents: read
+      actions: read
+      contents: write
       packages: write
       id-token: write  # required to get an OIDC token for signing
       security-events: write  # required to upload SARIF files
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
+          persist-credentials: false
 
       - name: Write OpenStack credentials
         run: echo "$OS_CLOUDS" > ./clouds.yaml
@@ -68,3 +109,228 @@ jobs:
           ENVIRONMENT: ${{ vars.TARGET_CLOUD }}
           PACKER_TEMPLATE: ${{ matrix.template }}
           ENV_VAR_FILES: ${{ matrix.var-files }}
+          PKR_VAR_source_image_name: ${{ needs.ensure_source_image.outputs.source_image }}
+          SKIP_SOURCE_IMAGE: "true"
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+
+      - name: install libguestfs
+        run: sudo apt-get -y install libguestfs-tools
+
+      - name: mkdir for mount
+        run: sudo mkdir -p "./${STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_NAME}"
+        env:
+          STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_NAME: ${{ steps.build-image.outputs.image-name }}
+
+      - name: mount qcow2 file
+        run: >
+          sudo guestmount -a
+          "${STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_DEST_FILE}"
+          -i --ro -o allow_other
+          "./${STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_NAME}"
+        env:
+          STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_DEST_FILE: ${{ steps.build-image.outputs.image-dest-file }}
+          STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_NAME: ${{ steps.build-image.outputs.image-name }}
+
+      - name: Generate sbom
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610
+        id: generate-sbom
+        with:
+          path: "${{ steps.build-image.outputs.image-name }}"
+          artifact-name: "${{ steps.build-image.outputs.image-name }}-sbom.json"
+          output-file: "${{ steps.build-image.outputs.image-name }}-sbom.json"
+          format: syft-json
+
+      - name: Fail if scan has CRITICAL vulnerabilities
+        uses: anchore/scan-action@7037fa011853d5a11690026fb85feee79f4c946c
+        with:
+          sbom: "${{ steps.build-image.outputs.image-name }}-sbom.json"
+          output-format: table
+          severity-cutoff: critical
+          only-fixed: true
+
+      - name: Publish image
+        id: publish-image
+        run: ./bin/publish-image
+        env:
+          IMAGE_NAME: ${{ steps.build-image.outputs.image-name }}
+          IMAGE_DISK_FORMAT: ${{ steps.build-image.outputs.image-disk-format }}
+          # Upload images to a fixed S3 host
+          S3_HOST: ${{ vars.CLOUDFLARE_S3_HOST }}
+          S3_HOST_PUBLIC_PATH: ${{ vars.CLOUDFLARE_S3_HOST_PUBLIC_PATH }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
+
+      - name: Write matrix outputs
+        uses: cloudposse/github-action-matrix-outputs-write@ed06cf3a6bf23b8dce36d1cf0d63123885bb8375 # v1
+        with:
+          matrix-step-name: ${{ github.job }}
+          matrix-key: ${{ matrix.name }}
+          outputs: |-
+            name: ${{ steps.publish-image.outputs.image-name }}
+            url: ${{ steps.publish-image.outputs.image-url }}
+            checksum: ${{ steps.publish-image.outputs.image-checksum }}
+            checksum_sha512: ${{ steps.publish-image.outputs.image-checksum-sha512 }}
+            cosign-bundle-url: ${{ steps.publish-image.outputs.cosign-bundle-url }}
+            image-sbom-url: ${{ steps.publish-image.outputs.image-sbom-url }}
+            manifest-extra: ${{ steps.build-image.outputs.manifest-extra }}
+
+  delete_source_image:
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build_images
+      - ensure_source_image
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install script dependencies
+        run: pip install -r ./requirements.txt
+
+      - name: Write OpenStack credentials
+        run: echo "$OS_CLOUDS" > ./clouds.yaml
+        env:
+          OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
+
+      - name: Delete source image
+        run: ./bin/cleanup-source-image
+        env:
+          PKR_VAR_source_image_name: ${{ needs.ensure_source_image.outputs.source_image }}
+          OS_CLOUD: ${{ vars.TARGET_CLOUD }}
+
+  publish_manifest:
+    # this job should always run, but needs to run after the build matrix
+    needs:
+      - build_images
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    outputs:
+      manifest-url: ${{ steps.publish-manifest.outputs.manifest-url }}
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Read matrix outputs
+        id: matrix-outputs
+        uses: cloudposse/github-action-matrix-outputs-read@33cac12fa9282a7230a418d859b93fdbc4f27b5a # v1
+        with:
+          matrix-step-name: build_images
+
+      - name: Write outputs
+        uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
+        with:
+          path: build-outputs.json
+          write-mode: overwrite
+          contents: ${{ steps.matrix-outputs.outputs.result }}
+
+      - name: Generate manifest
+        run: ./bin/generate-manifest
+        env:
+          BUILD_OUTPUTS_FILE: ./build-outputs.json
+          MANIFEST_FILE: ./manifest.json
+
+      - name: Install s3cmd
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y s3cmd
+
+      - name: Publish manifest to S3
+        id: publish-manifest
+        run: ./bin/publish-manifest
+        env:
+          MANIFEST_FILE: ./manifest.json
+          S3_HOST: ${{ vars.CLOUDFLARE_S3_HOST }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_HOST_PUBLIC_PATH: ${{ vars.CLOUDFLARE_S3_HOST_PUBLIC_PATH }}
+          S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
+
+  run_azimuth_tests:
+    needs:
+      - publish_manifest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+
+      # Check out the configuration repository
+      - name: Set up Azimuth environment
+        uses: azimuth-cloud/azimuth-config/.github/actions/setup@devel
+        with:
+          os-clouds: ${{ secrets.OS_CLOUDS }}
+          target-cloud: ${{ vars.TARGET_CLOUD }}
+          environment-prefix: images-ci
+          # Use the manifest that we just built
+          # We want to run all the CaaS tests except Slurm
+          # We want to run the Kubernetes tests _for all Kubernetes versions_
+          # We don't need to run the apps tests
+          extra-vars: |
+            community_images_azimuth_images_manifest_url: ${{ needs.publish_manifest.outputs.manifest-url }}
+            generate_tests_caas_test_case_slurm_enabled: false
+            generate_tests_kubernetes_test_cases_latest_only: false
+            generate_tests_kubernetes_apps_suite_enabled: false
+        # GitHub terminates jobs after 6 hours
+        # We don't want jobs to acquire the lock then get timed out before
+        # they can finish, so wait a maximum of 3 hours to acquire the lock,
+        # leaving 3 hours for other tasks in the job
+        timeout-minutes: 180
+
+      - name: Provision Azimuth
+        uses: azimuth-cloud/azimuth-config/.github/actions/provision@devel
+
+      - name: Run Azimuth tests
+        uses: azimuth-cloud/azimuth-config/.github/actions/test@devel
+
+      - name: Destroy Azimuth
+        uses: azimuth-cloud/azimuth-config/.github/actions/destroy@devel
+        if: ${{ always() }}
+
+  # Purge the images that we just tested from OpenStack
+  purge_images:
+    needs:
+      - run_azimuth_tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install s3cmd
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y s3cmd
+
+      - name: Install script dependencies
+        run: pip install -r ./requirements.txt
+
+      - name: Write OpenStack credentials
+        run: echo "$OS_CLOUDS" > ./clouds.yaml
+        env:
+          OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
+
+      - name: Purge images for manifest
+        run: ./bin/purge-images "${GITHUB_SHA}.manifest"
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+          OS_CLOUD: ${{ vars.TARGET_CLOUD }}
+          S3_HOST: ${{ vars.CLOUDFLARE_S3_HOST }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}

@@ -27,12 +27,8 @@ cleanup() {
   if [ -n "$PKR_VAR_floating_ip" ]; then
     openstack floating ip delete "$PKR_VAR_floating_ip"
   fi
-  # Delete the source image artefacts
-  if [ -n "$PKR_VAR_source_image_name" ]; then
-    openstack image delete "$PKR_VAR_source_image_name"
-    if [ -f "$PKR_VAR_source_image_name.download" ]; then
-      rm "$PKR_VAR_source_image_name.download"
-    fi
+  if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
+    "$REPO_ROOT"/bin/cleanup-source-image
   fi
 }
 trap cleanup EXIT
@@ -45,16 +41,9 @@ do
   sleep 30
 done
 
-PKR_VAR_source_image_name="packer-$(uuidgen | tr '[:upper:]' '[:lower:]')"
-curl -Lo "$PKR_VAR_source_image_name.download" "$SOURCE_IMAGE_URL"
-openstack image create \
-  --progress \
-  --private \
-  --container-format "${SOURCE_IMAGE_CONTAINER_FORMAT:-bare}" \
-  --disk-format "${SOURCE_IMAGE_DISK_FORMAT:-qcow2}" \
-  --file "$PKR_VAR_source_image_name.download" \
-  "${SOURCE_IMAGE_PROPERTIES[@]}" \
-  "$PKR_VAR_source_image_name"
+if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
+  source "$REPO_ROOT"/bin/ensure-source-image
+fi
 
 export PACKER_LOG=1 PKR_VAR_floating_ip PKR_VAR_source_image_name
 PACKER_ARGS=("${PACKER_VAR_FILES_ARGS[@]}" "${PACKER_EXTRA_ARGS[@]}")
@@ -62,3 +51,37 @@ packer build \
   --on-error=cleanup \
   "${PACKER_ARGS[@]}" \
   "$REPO_ROOT/packer/$PACKER_TEMPLATE.pkr.hcl"
+
+if [ -f "./packer-manifest.json" ]; then
+  # Download the image that we built and remove it from OpenStack
+  IMAGE_ID="$(jq -r '.builds[-1].artifact_id' ./packer-manifest.json)"
+  IMAGE_NAME="$(openstack image show -f value -c name "$IMAGE_ID")"
+  IMAGE_DISK_FORMAT="$(openstack image show -f value -c disk_format "$IMAGE_ID")"
+  IMAGE_SOURCE_FILE="${IMAGE_NAME}.source.${IMAGE_DISK_FORMAT}"
+  openstack image save --file "$IMAGE_SOURCE_FILE" "$IMAGE_ID"
+  openstack image delete "$IMAGE_ID"
+
+  # Convert the image to QCOW2 if required
+  IMAGE_DEST_FILE="${IMAGE_NAME}.qcow2"
+
+  if [ "$IMAGE_DISK_FORMAT" = "qcow2" ]; then
+    mv "$IMAGE_SOURCE_FILE" "$IMAGE_DEST_FILE"
+  else
+    qemu-img convert \
+      -f "$IMAGE_DISK_FORMAT" \
+      -O qcow2 \
+      "$IMAGE_SOURCE_FILE" \
+      "$IMAGE_DEST_FILE"
+  fi
+  # output the image size for debug reasons
+  ls -alh "$IMAGE_DEST_FILE"
+
+  # Output the name, format and filename for the downloaded image, and the manifest extra
+  MANIFEST_EXTRA="$(jq -c -r '.builds[-1].custom_data // {}' ./packer-manifest.json)"
+  {
+    echo "image-name=$IMAGE_NAME"
+    echo "image-source-file=$IMAGE_SOURCE_FILE"
+    echo "image-dest-file=$IMAGE_DEST_FILE"
+    echo "manifest-extra=$MANIFEST_EXTRA"
+  } >>"${GITHUB_OUTPUT:-/dev/stdout}"
+fi
