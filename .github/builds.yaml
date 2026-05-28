@@ -10,21 +10,13 @@
 #   template: jupyter-repo2docker
 #   var-files: common,kvm,linux,ubuntu-jammy
 
-- name: linux-rstudio
-  template: linux-rstudio
-  var-files: common,kvm,linux,ubuntu-jammy
-
-- name: kubernetes-1-33-jammy
-  template: kubernetes
-  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_amdgpu,kubernetes_1_33
+# - name: linux-rstudio
+#   template: linux-rstudio
+#   var-files: common,kvm,linux,ubuntu-jammy
 
 - name: kubernetes-1-34-jammy
   template: kubernetes
-  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_amdgpu,kubernetes_1_34
-
-- name: kubernetes-1-35-jammy
-  template: kubernetes
-  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_amdgpu,kubernetes_1_35
+  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_1_34
 
 - name: kubernetes-1-35-jammy
   template: kubernetes
