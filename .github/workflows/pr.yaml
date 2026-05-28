@@ -77,19 +77,29 @@ jobs:
     if: ${{ !github.event.pull_request.draft && needs.check_paths.outputs.ubuntu_changed == 'true' }}
     uses: ./.github/workflows/build_test_images.yaml
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
     permissions:
       actions: read
       contents: write
       packages: write
       id-token: write  # required to get an OIDC token for signing
       security-events: write  # required to upload SARIF files
+<<<<<<< HEAD
       checks: write # to write check-runs statuses
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
     secrets:
       OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
       CLOUDFLARE_S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
       CLOUDFLARE_S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
 
+<<<<<<< HEAD
   ## Purge the manifest and images that we just tested from S3
+=======
+  # Purge the manifest and images that we just tested from S3
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
   purge_images:
     needs:
       - build_test_images
@@ -114,6 +124,9 @@ jobs:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
+<<<<<<< HEAD
 =======
     secrets: inherit
 >>>>>>> b23a5cb (DAAC-891: Removing azimuth test cases stage and S3 uploading as we don't need them at the moment)
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))

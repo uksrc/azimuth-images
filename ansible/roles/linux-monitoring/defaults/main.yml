@@ -1,7 +1,11 @@
 ---
 grafana_container_image_prefix: "docker.io"
 
+<<<<<<< HEAD
 grafana_version: "13.2.0-distroless"
+=======
+grafana_version: "13.0.1-security-01"
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 grafana_container_image_name: "grafana/grafana"
 
@@ -17,7 +21,11 @@ grafana_dashboards:
 
 prometheus_container_image_prefix: "docker.io"
 
+<<<<<<< HEAD
 prometheus_version: "v3.14.0"
+=======
+prometheus_version: "v3.11.3"
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 prometheus_container_image_name: "prom/prometheus"
 
@@ -26,6 +34,10 @@ prometheus_container_image: "{{ prometheus_container_image_prefix }}/{{ promethe
 
 podman_service_user: "podman"
 
+<<<<<<< HEAD
 prometheus_node_exporter_listen_address: "0.0.0.0"
+=======
+prometheus_node_exporter_listen_address: "127.0.0.1"
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 prometheus_node_exporter_listen_port: "9100"

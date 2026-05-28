@@ -30,11 +30,15 @@ jobs:
           persist-credentials: false
 
       - name: Run ansible-lint
+<<<<<<< HEAD
         uses: ansible/ansible-lint@5fac056c45595896c973fbde871f01f6cb14d74c # v26.4.0
         env:
           # Playbooks olnly support old versions of ansible, but the linter can't understand this.
           # Once we support the latest ansible, or the promethus dependency is updated, this can go away.
           ANSIBLE_COLLECTIONS_ON_ANSIBLE_VERSION_MISMATCH: ignore
+=======
+        uses: ansible/ansible-lint@e98f9b38769d45cbe3c55a23b2eb25631babe7c4 # v25.4.0
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
       - name: Load super-linter configuration
         # Use grep inverse matching to exclude eventual comments in the .env file

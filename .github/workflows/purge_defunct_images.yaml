@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+<<<<<<< HEAD
 
       - name: Wait if other workflows are in_progress
         run: |
@@ -34,6 +35,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
       - name: Install script dependencies
         run: pip install -r ./requirements.txt

@@ -4,10 +4,13 @@ blacklisted_kernel_modules_default:
   - esp4
   - esp6
   - rxrpc
+<<<<<<< HEAD
   - act_pedit
   - rds
   - rds_tcp
   - openvswitch
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 blacklisted_kernel_modules_extra: []
 

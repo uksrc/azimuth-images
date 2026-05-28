@@ -120,6 +120,10 @@ variable "containerd_service_url" {
   type = string
 }
 
+variable "containerd_service_url" {
+  type = string
+}
+
 variable "containerd_version" {
   type = string
 }

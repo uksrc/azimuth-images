@@ -9,10 +9,14 @@ on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - main
+<<<<<<< HEAD
     paths-ignore:
       - "vars/flatcar/**"
       - "bin/flatcar-*"
       - ".github/workflows/flatcar-*.yml"
+=======
+  workflow_dispatch:
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 jobs:
   # Build, publish and test the images
@@ -24,7 +28,10 @@ jobs:
       packages: write
       id-token: write  # required to get an OIDC token for signing
       security-events: write  # required to upload SARIF files
+<<<<<<< HEAD
       checks: write
+=======
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
     secrets:
       OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
       CLOUDFLARE_S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}

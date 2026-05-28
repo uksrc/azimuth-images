@@ -5,8 +5,8 @@ set -eo pipefail
 # Get source image from build matrix
 if [[ $GH_ACTIONS_RUN == "true" ]]; then
   SOURCE_IMAGE_ENV=$(echo "$BUILD_MATRIX" | jq -r '
-    .[]."var-files" 
-    | split(",")[] 
+    .[]."var-files"
+    | split(",")[]
     | select(startswith("ubuntu-"))
     ' | sort -u)
   SOURCE_IMAGE_ENV_COUNT=$(echo "$SOURCE_IMAGE_ENV" | grep -c .)

@@ -13,11 +13,15 @@ import requests
 #####
 
 parser = argparse.ArgumentParser(description="Updates an Ubuntu base image to the latest release.")
+<<<<<<< HEAD
 parser.add_argument(
     "distro",
     choices=["focal", "jammy", "noble"],
     help="The name of the distro to update.",
 )
+=======
+parser.add_argument("distro", choices=["focal", "jammy"], help="The name of the distro to update.")
+>>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 args = parser.parse_args()
 
 
