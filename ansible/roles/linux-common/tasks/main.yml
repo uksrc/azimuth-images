@@ -1,14 +1,14 @@
 ---
 - name: Update apt cache
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Upgrade all packages
-  apt:
-    upgrade: dist
-    autoremove: yes
-    autoclean: yes
+  ansible.builtin.apt:
+    upgrade: "dist"
+    autoremove: true
+    autoclean: true
 
 # ACL Required for become to an unprivileged user to work
 # Ensure up-to-date CA certificates
