@@ -302,7 +302,7 @@ jobs:
   # Purge the images that we just tested from OpenStack
   purge_images:
     needs:
-      - run_azimuth_tests
+      - publish_manifest
     runs-on: ubuntu-latest
     permissions:
       contents: read
