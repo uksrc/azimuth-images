@@ -13,7 +13,7 @@ EOF
 
 # Copy the manifest to a file named after the commit SHA before uploading
 cp "$MANIFEST_FILE" "${GITHUB_SHA}.manifest"
-s3cmd put "${GITHUB_SHA}.manifest" "s3://$S3_BUCKET"
+s3cmd --config=~/.s3cfg put "${GITHUB_SHA}.manifest" "s3://$S3_BUCKET"
 
 # Make a signed link for the manifest that lasts for one day
 MANIFEST_URL="$S3_HOST_PUBLIC_PATH/${GITHUB_SHA}.manifest"
