@@ -14,8 +14,8 @@ secret_key = ${S3_SECRET_KEY}
 use_https = True
 EOF
 
-manifest="$(s3cmd --config=~/.s3cfg get --no-progress "s3://$S3_BUCKET/$1" -)"
+manifest="$(s3cmd get --no-progress "s3://$S3_BUCKET/$1" -)"
 for name in $(jq -r '.[] | .name' <<<"$manifest"); do
-  s3cmd --config=~/.s3cfg del "s3://$S3_BUCKET/${name}.qcow2"
+  s3cmd del "s3://$S3_BUCKET/$name.qcow2"
 done
-s3cmd --config=~/.s3cfg del "s3://$S3_BUCKET/$1"
+s3cmd del "s3://$S3_BUCKET/$1"
