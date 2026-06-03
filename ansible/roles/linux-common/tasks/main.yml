@@ -73,6 +73,19 @@
     sysctl_file: "{{ item.conf_file }}"
   loop: "{{ sysctl_options_default + sysctl_options_extra }}"
 
+# Make sure unattended upgrades are enabled
+- name: Enable apt-daily systemd timer
+  ansible.builtin.systemd_service:
+    name: apt-daily.timer
+    enabled: true
+    state: started
+
+- name: Enable apt-daily-upgrade systemd timer
+  ansible.builtin.systemd_service:
+    name: apt-daily-upgrade.timer
+    enabled: true
+    state: started
+
 - name: Clean up after ourselves
   ansible.builtin.apt:
     clean: true
