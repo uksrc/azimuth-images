@@ -1,14 +1,11 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
-
-- name: Upgrade all packages
-  apt:
-    upgrade: dist
-    autoremove: yes
-    autoclean: yes
+# Add separate task to update and upgrade as was hitting an error:
+#  fatal: [default]: FAILED! => {"changed": false, "msg": "No package matching 'acl' is available"}
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    upgrade: "dist"
+    update_cache: true
+    cache_valid_time: 86400 # One day
 
 # ACL Required for become to an unprivileged user to work
 # Ensure up-to-date CA certificates
