@@ -6,7 +6,14 @@ concurrency:
   cancel-in-progress: true
 
 on:  # yamllint disable-line rule:truthy
-  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+      - reopened
+    branches:
+      - main
 
 jobs:
   # This job exists so that PRs from outside the main repo are rejected
@@ -28,22 +35,3 @@ jobs:
       statuses: write
     needs:
       - fail_on_remote
-
-  # Build, publish and test the images
-  build_test_images:
-    needs:
-      - fail_on_remote
-      - lint
-    # Don't build draft PRs
-    if: ${{ !github.event.pull_request.draft }}
-    uses: ./.github/workflows/build_test_images.yaml
-    permissions:
-      actions: read
-      contents: write
-      packages: write
-      id-token: write  # required to get an OIDC token for signing
-      security-events: write  # required to upload SARIF files
-    secrets:
-      OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
-      S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-      S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
