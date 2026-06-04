@@ -1,12 +1,8 @@
 ---
 # yamllint disable rule:line-length
-<<<<<<< HEAD
 name: Build, publish and test Ubuntu images
-=======
-name: Build, publish and test images
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   workflow_call:
     secrets:
       OS_CLOUDS:
@@ -84,8 +80,8 @@ jobs:
       actions: read
       contents: write
       packages: write
-      id-token: write  # required to get an OIDC token for signing
-      security-events: write  # required to upload SARIF files
+      id-token: write # required to get an OIDC token for signing
+      security-events: write # required to upload SARIF files
       checks: write # to write check-runs statuses
     steps:
       - name: Check out the repository
@@ -114,25 +110,14 @@ jobs:
           ENVIRONMENT: ${{ vars.TARGET_CLOUD }}
           PACKER_TEMPLATE: ${{ matrix.template }}
           ENV_VAR_FILES: ${{ matrix.var-files }}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
           PKR_VAR_source_image_name: ${{ needs.ensure_source_image.outputs.source_image }}
           SKIP_SOURCE_IMAGE: "true"
 
       - name: Install cosign
-<<<<<<< HEAD
         uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3.9.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
-=======
-        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
       - name: install libguestfs
         run: sudo apt-get -y install libguestfs-tools
@@ -153,11 +138,7 @@ jobs:
           STEPS_BUILD_IMAGE_OUTPUTS_IMAGE_NAME: ${{ steps.build-image.outputs.image-name }}
 
       - name: Generate sbom
-<<<<<<< HEAD
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
-=======
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
         id: generate-sbom
         with:
           path: "${{ steps.build-image.outputs.image-name }}"
@@ -165,7 +146,6 @@ jobs:
           output-file: "${{ steps.build-image.outputs.image-name }}-sbom.json"
           format: syft-json
 
-<<<<<<< HEAD
       - name: Scan sbom with Grype
         uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
         id: scan
@@ -199,15 +179,6 @@ jobs:
           GRYPE_ANALYSE_MATRIX: ${{ steps.build-image.outputs.image-name }}
           GRYPE_OUTPUT_FILE: ${{ steps.build-image.outputs.image-name }}.grype.json
           GRYPE_CONFIG_FILE: grype-config/${{ matrix.name }}.yaml
-=======
-      - name: Fail if scan has CRITICAL vulnerabilities
-        uses: anchore/scan-action@7037fa011853d5a11690026fb85feee79f4c946c
-        with:
-          sbom: "${{ steps.build-image.outputs.image-name }}-sbom.json"
-          output-format: table
-          severity-cutoff: critical
-          only-fixed: true
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
       - name: Publish image
         id: publish-image
@@ -219,44 +190,8 @@ jobs:
           S3_HOST: ${{ vars.CLOUDFLARE_S3_HOST }}
           S3_HOST_PUBLIC_PATH: ${{ vars.CLOUDFLARE_S3_HOST_PUBLIC_PATH }}
           S3_BUCKET: ${{ vars.S3_BUCKET }}
-<<<<<<< HEAD
-<<<<<<< HEAD
           S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
-=======
-          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
-          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: install libguestfs
-        run: sudo apt-get -y install libguestfs-tools
-
-      - name: mkdir for mount
-        run: sudo mkdir -p './${{ steps.publish-image.outputs.image-name }}'
-
-      - name: mount raw file
-        run: >
-          sudo guestmount -a
-          ${{ steps.publish-image.outputs.image-name }}.raw
-          -i --ro -o allow_other
-          './${{ steps.publish-image.outputs.image-name }}'
-
-      - name: Fail if scan has CRITICAL vulnerabilities
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          scan-type: fs
-          scan-ref: "./${{ steps.publish-image.outputs.image-name }}"
-          scanners: "vuln"
-          format: table
-          exit-code: "1"
-          severity: "CRITICAL"
-          ignore-unfixed: true
-          trivyignores: .github/.trivyignore
-        env:
-          TRIVY_DB_REPOSITORY: ghcr.io/azimuth-cloud/trivy-db:2
->>>>>>> 201a04a (DAAC-891: making mount to use raw)
 
       - name: Write matrix outputs
         run: |
@@ -287,28 +222,6 @@ jobs:
 
   delete_source_image:
     runs-on: ubuntu-latest
-=======
-          S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
-          S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
-
-      - name: Write matrix outputs
-        uses: cloudposse/github-action-matrix-outputs-write@ed06cf3a6bf23b8dce36d1cf0d63123885bb8375 # v1
-        with:
-          matrix-step-name: ${{ github.job }}
-          matrix-key: ${{ matrix.name }}
-          outputs: |-
-            name: ${{ steps.publish-image.outputs.image-name }}
-            url: ${{ steps.publish-image.outputs.image-url }}
-            checksum: ${{ steps.publish-image.outputs.image-checksum }}
-            checksum_sha512: ${{ steps.publish-image.outputs.image-checksum-sha512 }}
-            cosign-bundle-url: ${{ steps.publish-image.outputs.cosign-bundle-url }}
-            image-sbom-url: ${{ steps.publish-image.outputs.image-sbom-url }}
-            manifest-extra: ${{ steps.build-image.outputs.manifest-extra }}
-
-  delete_source_image:
-    runs-on: ubuntu-latest
-    if: always()
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
     needs:
       - build_images
       - ensure_source_image
@@ -350,7 +263,6 @@ jobs:
         with:
           persist-credentials: false
 
-<<<<<<< HEAD
       - name: Download matrix outputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
@@ -361,20 +273,6 @@ jobs:
       - name: Combine matrix outputs
         run: |
           jq -s 'reduce .[] as $x ({}; . * $x)' matrix-outputs/*.json > build-outputs.json
-=======
-      - name: Read matrix outputs
-        id: matrix-outputs
-        uses: cloudposse/github-action-matrix-outputs-read@33cac12fa9282a7230a418d859b93fdbc4f27b5a # v1
-        with:
-          matrix-step-name: build_images
-
-      - name: Write outputs
-        uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
-        with:
-          path: build-outputs.json
-          write-mode: overwrite
-          contents: ${{ steps.matrix-outputs.outputs.result }}
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
       - name: Generate manifest
         run: ./bin/generate-manifest
@@ -405,7 +303,6 @@ jobs:
     permissions:
       contents: read
     steps:
-
       # Check out the configuration repository
       - name: Set up Azimuth environment
         uses: azimuth-cloud/azimuth-config/.github/actions/setup@devel
@@ -422,12 +319,6 @@ jobs:
             generate_tests_caas_test_case_slurm_enabled: false
             generate_tests_kubernetes_test_cases_latest_only: false
             generate_tests_kubernetes_apps_suite_enabled: false
-<<<<<<< HEAD
-            infra_flavor_id: 6b56d6e9-5397-4543-87fb-e0c0b6d47961
-            generate_tests_caas_test_case_workstation_param_cluster_flavor: 6b56d6e9-5397-4543-87fb-e0c0b6d47961
-            CI_S3_LOCK_BUCKET: ${{ vars.S3_BUCKET  }}
-=======
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
         # GitHub terminates jobs after 6 hours
         # We don't want jobs to acquire the lock then get timed out before
         # they can finish, so wait a maximum of 3 hours to acquire the lock,
@@ -479,8 +370,3 @@ jobs:
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ACCESS_KEY: ${{ secrets.CLOUDFLARE_S3_ACCESS_KEY }}
           S3_SECRET_KEY: ${{ secrets.CLOUDFLARE_S3_SECRET_KEY }}
-<<<<<<< HEAD
-=======
->>>>>>> b23a5cb (DAAC-891: Removing azimuth test cases stage and S3 uploading as we don't need them at the moment)
-=======
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
