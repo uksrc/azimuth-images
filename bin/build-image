@@ -29,8 +29,6 @@ cleanup() {
   fi
   if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
     "$REPO_ROOT"/bin/cleanup-source-image
-  if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
-    "$REPO_ROOT"/bin/cleanup-source-image
   fi
 }
 trap cleanup EXIT
@@ -43,9 +41,6 @@ do
   sleep 30
 done
 
-if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
-  source "$REPO_ROOT"/bin/ensure-source-image
-fi
 if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
   source "$REPO_ROOT"/bin/ensure-source-image
 fi
