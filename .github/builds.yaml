@@ -4,7 +4,7 @@
 
 # - name: ubuntu-desktop
 #   template: linux-desktop
-#   var-files: common,kvm,linux,ubuntu-jammy
+#   var-files: common,kvm,linux,ubuntu-noble
 
 # - name: jupyter-repo2docker
 #   template: jupyter-repo2docker
@@ -14,10 +14,14 @@
 #   template: linux-rstudio
 #   var-files: common,kvm,linux,ubuntu-jammy
 
-- name: kubernetes-1-34-jammy
-  template: kubernetes
-  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_1_34
+# - name: kubernetes-1-34-jammy
+#   template: kubernetes
+#   var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_1_34
 
-- name: kubernetes-1-35-jammy
+- name: kubernetes-1-35-noble
   template: kubernetes
-  var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_1_35
+  var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_35
+
+# - name: kubernetes-1-36-noble
+#   template: kubernetes
+#   var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_amdgpu,kubernetes_1_36
