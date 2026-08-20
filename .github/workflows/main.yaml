@@ -5,18 +5,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - main
-<<<<<<< HEAD
     paths-ignore:
       - "vars/flatcar/**"
       - "bin/flatcar-*"
       - ".github/workflows/flatcar-*.yml"
-=======
-  workflow_dispatch:
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 jobs:
   # Build, publish and test the images
@@ -26,12 +22,9 @@ jobs:
       actions: read
       contents: write
       packages: write
-      id-token: write  # required to get an OIDC token for signing
-      security-events: write  # required to upload SARIF files
-<<<<<<< HEAD
+      id-token: write # required to get an OIDC token for signing
+      security-events: write # required to upload SARIF files
       checks: write
-=======
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
     secrets:
       OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
       S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}

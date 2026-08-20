@@ -4,13 +4,10 @@ blacklisted_kernel_modules_default:
   - esp4
   - esp6
   - rxrpc
-<<<<<<< HEAD
   - act_pedit
   - rds
   - rds_tcp
   - openvswitch
-=======
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
 
 blacklisted_kernel_modules_extra: []
 
@@ -21,6 +18,6 @@ sysctl_options_default:
   # Mitigation for ssh-keysign-pwn
   - conf_file: /etc/sysctl.d/10-ptrace.conf
     option: kernel.yama.ptrace_scope
-    value: '2'
+    value: "2"
 
 sysctl_options_extra: []

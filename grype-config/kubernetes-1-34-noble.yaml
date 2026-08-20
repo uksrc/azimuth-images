@@ -1,6 +1,5 @@
 # yamllint disable-file
 ---
-
 ignore:
   ### CVE-2024-24790
   # FIXME: Vulnerable symbols found but no updated Ubuntu package
@@ -525,7 +524,7 @@ ignore:
   - vulnerability: GHSA-x527-x647-q7gg
     package:
       location: /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/**
-### CVE-2026-52914
+  ### CVE-2026-52914
   # FIXME: Vulnerable, no fix 2026-07-20 [https://ubuntu.com/security/CVE-2026-52914]
   - vulnerability: CVE-2026-52914
   ### CVE-2026-52931
@@ -642,7 +641,7 @@ ignore:
   ### CVE-2026-64089
   # FIXME: Vulnerable, no fix 2026-09-02 [https://ubuntu.com/security/CVE-2026-64089]
   - vulnerability: CVE-2026-64089
-  ### CVE-2026-64091 
+  ### CVE-2026-64091
   # FIXME: Vulnerable, no fix 2026-09-02 [https://ubuntu.com/security/CVE-2026-64091]
   - vulnerability: CVE-2026-64091
   ### CVE-2026-64102

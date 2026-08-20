@@ -1,13 +1,8 @@
 ---
-
 zenith_client_image_prefix: ghcr.io/azimuth-cloud
 zenith_client_image_name: zenith-client
-<<<<<<< HEAD
-zenith_client_image_tag: 0.19.0
-=======
-zenith_client_image_tag: 0.18.0
->>>>>>> 2241a57 (Pog 85 merge upstream release 0.29.0 (#5))
-zenith_client_image: "{{ zenith_client_image_prefix }}/{{ zenith_client_image_name }}:{{ zenith_client_image_tag }}"  # yamllint disable-line rule:line-length
+zenith_client_image_tag: 0.18.1
+zenith_client_image: "{{ zenith_client_image_prefix }}/{{ zenith_client_image_name }}:{{ zenith_client_image_tag }}" # yamllint disable-line rule:line-length
 
 zenith_client_needs: []
 # The default host for forwarding is the pod that the client is in
