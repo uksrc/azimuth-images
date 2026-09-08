@@ -67,8 +67,9 @@ jobs:
           echo "flatcar_changed=${flatcar_changed}" >> "$GITHUB_OUTPUT"
           echo "ubuntu_changed=${ubuntu_changed}" >> "$GITHUB_OUTPUT"
 
-  # Build, publish and test the images
-  build_test_images:
+  # Detect whether Ubuntu image files changed so we can skip the expensive
+  # build pipeline for Flatcar-only PRs.
+  check_paths:
     needs:
       - fail_on_remote
       - lint
@@ -103,8 +104,16 @@ jobs:
 
       - name: Install s3cmd
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y s3cmd
+          files=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/files" \
+            --jq '[.[].filename]')
+          flatcar_changed=$(echo "$files" | jq '
+            any(.[]; test("^(vars/flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)"))
+          ')
+          ubuntu_changed=$(echo "$files" | jq '
+            any(.[]; test("^(vars/flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)") | not)
+          ')
+          echo "flatcar_changed=${flatcar_changed}" >> "$GITHUB_OUTPUT"
+          echo "ubuntu_changed=${ubuntu_changed}" >> "$GITHUB_OUTPUT"
 
       - name: Purge tested images from S3
         run: ./bin/purge-manifest "${GITHUB_SHA}.manifest"

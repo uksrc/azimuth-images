@@ -96,6 +96,21 @@ type = string
 default = ""
 }
 
+variable "amd_deb_version" {
+  type = string
+  default = ""
+}
+
+variable "gpu_amd_usecase" {
+  type = string
+  default = ""
+}
+
+variable "amd_version" {
+  type = string
+  default = ""
+}
+
 variable "build_target" {
 type = string
 }
@@ -179,6 +194,11 @@ type = string
 variable "gpu_vendor" {
 type = string
 default = ""
+}
+
+variable "gpu_vendor" {
+  type = string
+  default = ""
 }
 
 variable "ecr_credential_provider" {
