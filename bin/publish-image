@@ -28,13 +28,13 @@ s3cmd put "${IMAGE_NAME}-sbom.json" "s3://$S3_BUCKET"
 # COSIGN_BUNDLE_URL="$(s3cmd signurl "s3://$S3_BUCKET/${IMAGE_NAME}.cosign.bundle" +31536000)"
 
 # Use public Swift URL instead of signed link
-IMAGE_URL="${S3_HOST_PUBLIC_PATH}/${IMAGE_NAME}.qcow2"
+IMAGE_URL="${S3_HOST_PUBLIC_PATH}/${IMAGE_NAME}.raw"
 COSIGN_BUNDLE_URL="${S3_HOST_PUBLIC_PATH}/${IMAGE_NAME}.cosign.bundle"
 IMAGE_SBOM_URL="${S3_HOST_PUBLIC_PATH}/${IMAGE_NAME}-sbom.json"
 
 # Get the checksums of the image
-IMAGE_CHECKSUM="sha256:$(sha256sum "${IMAGE_NAME}.qcow2" | awk '{ print $1 }')"
-IMAGE_CHECKSUM_SHA512="sha512:$(sha512sum "${IMAGE_NAME}.qcow2" | awk '{ print $1 }')"
+IMAGE_CHECKSUM="sha256:$(sha256sum "${IMAGE_NAME}.raw" | awk '{ print $1 }')"
+IMAGE_CHECKSUM_SHA512="sha512:$(sha512sum "${IMAGE_NAME}.raw" | awk '{ print $1 }')"
 
 # Produce outputs
 {

@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: true
@@ -7,20 +6,11 @@
   timeout: 300
   retries: 3
   until: apt_cache_update is not failed
-=======
-# Add separate task to update and upgrade as was hitting an error:
-#  fatal: [default]: FAILED! => {"changed": false, "msg": "No package matching 'acl' is available"}
-- name: Update and upgrade apt packages
-  ansible.builtin.apt:
-    upgrade: "dist"
-    update_cache: true
-    cache_valid_time: 86400 # One day
->>>>>>> ee400b4 (feat(DAAC-1206): add image properties for UEFI, required for GPU nodes (#3))
 
 # ACL Required for become to an unprivileged user to work
 # Ensure up-to-date CA certificates
 # Use linux-generic to track linux-modules-extra (IB)
-- name: Install common packages  # noqa package-latest
+- name: Install common packages # noqa package-latest
   ansible.builtin.apt:
     pkg:
       - acl
