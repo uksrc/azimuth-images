@@ -144,6 +144,10 @@ variable "containerd_wasm_shims_version" {
   type = string
 }
 
+variable "containerd_enable_limit_no_file" {
+  type = string
+}
+
 variable "crictl_arch" {
   type = string
 }
@@ -498,6 +502,8 @@ build {
       "containerd_wasm_shims_url=${local.containerd_wasm_shims_url}",
       "--extra-vars",
       "containerd_wasm_shims_version=${var.containerd_wasm_shims_version}",
+       "--extra-vars",
+      "containerd_enable_limit_no_file=${var.containerd_enable_limit_no_file}",
       "--extra-vars",
       "crictl_sha256=${local.crictl_sha256}",
       "--extra-vars",
