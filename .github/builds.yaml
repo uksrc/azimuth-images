@@ -18,10 +18,10 @@
 #   template: kubernetes
 #   var-files: common,kvm,linux,ubuntu-jammy,kubernetes,kubernetes_1_34
 
-- name: kubernetes-1-35-noble
-  template: kubernetes
-  var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_35
+# - name: kubernetes-1-35-noble
+#   template: kubernetes
+#   var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_35
 
 - name: kubernetes-1-36-noble
   template: kubernetes
-  var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_amdgpu,kubernetes_1_36
+  var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_36
