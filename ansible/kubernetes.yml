@@ -10,6 +10,7 @@
           - esp4
           - esp6
           - algif_aead
+    - role: linux-amdgpu
 
 - name: Import CAPI image playbook
   import_playbook: ../vendor/image-builder/images/capi/ansible/node.yml
@@ -23,4 +24,3 @@
         name: amdgpu
         persistent: present
         state: absent
-      when: '"gpu" in node_custom_roles_pre and gpu_vendor == "amd"'
