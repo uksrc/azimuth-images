@@ -74,9 +74,6 @@ jobs:
       - check_paths
     # Don't build draft PRs or Flatcar-only PRs
     if: ${{ !github.event.pull_request.draft && needs.check_paths.outputs.ubuntu_changed == 'true' }}
-      - check_paths
-    # Don't build draft PRs or Flatcar-only PRs
-    if: ${{ !github.event.pull_request.draft && needs.check_paths.outputs.ubuntu_changed == 'true' }}
     uses: ./.github/workflows/build_test_images.yaml
     permissions:
       actions: read
