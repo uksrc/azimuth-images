@@ -94,8 +94,6 @@
     state: present
   loop: "{{ blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra }}"
   when: (blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra) | length > 0
-  loop: "{{ blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra }}"
-  when: (blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra) | length > 0
   notify: Regenerate initramfs
 
 - name: Set sysctl options
