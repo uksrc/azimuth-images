@@ -65,6 +65,28 @@
             - "networkd"
             - "eni"
             - "network-manager"
+- name: Switch cloud-init to alternative network renderer and activator
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/10_networkd.cfg
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      ---
+      merge_how:
+        - name: list
+          settings: [replace]
+        - name: dict
+          settings: [replace]
+      system_info:
+        network:
+          renderers:
+            - "networkd"
+            - "network-manager"
+          activators:
+            - "networkd"
+            - "eni"
+            - "network-manager"
 
 - name: Blacklist specified kernel modules
   community.general.kernel_blacklist:
@@ -73,6 +95,13 @@
   loop: "{{ blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra }}"
   when: (blacklisted_kernel_modules_default + blacklisted_kernel_modules_extra) | length > 0
   notify: Regenerate initramfs
+
+- name: Set sysctl options
+  ansible.posix.sysctl:
+    name: "{{ item.option }}"
+    value: "{{ item.value }}"
+    sysctl_file: "{{ item.conf_file }}"
+  loop: "{{ sysctl_options_default + sysctl_options_extra }}"
 
 - name: Set sysctl options
   ansible.posix.sysctl:
