@@ -5,7 +5,6 @@
   ansible.builtin.apt:
     upgrade: "dist"
     update_cache: true
-    cache_valid_time: 86400 # One day
 
 # ACL Required for become to an unprivileged user to work
 # Ensure up-to-date CA certificates
