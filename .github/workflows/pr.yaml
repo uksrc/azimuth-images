@@ -18,7 +18,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   # This job exists so that PRs from outside the main repo are rejected
   fail_on_remote:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {}
     steps:
       - name: PR must be from a branch in the uksrc/azimuth-images repo
@@ -40,7 +40,7 @@ jobs:
   check_paths:
     needs:
       - fail_on_remote
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       pull-requests: read

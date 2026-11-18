@@ -18,7 +18,7 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   propose_base_image_update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
