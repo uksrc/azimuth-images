@@ -18,7 +18,7 @@ on:  # yamllint disable-line rule:truthy
 jobs:
   # This job exists so that PRs from outside the main repo are rejected
   fail_on_remote:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: {}
     steps:
       - name: PR must be from a branch in the uksrc/azimuth-images repo
@@ -31,7 +31,6 @@ jobs:
     uses: ./.github/workflows/lint.yml
     permissions:
       contents: read
-      packages: write
       statuses: write
     needs:
       - fail_on_remote
@@ -41,7 +40,7 @@ jobs:
   check_paths:
     needs:
       - fail_on_remote
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       pull-requests: read
@@ -59,10 +58,10 @@ jobs:
           files=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/files" \
             --jq '[.[].filename]')
           flatcar_changed=$(echo "$files" | jq '
-            any(.[]; test("^(vars/flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)"))
+            any(.[]; test("^(vars/flatcar/|flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)"))
           ')
           ubuntu_changed=$(echo "$files" | jq '
-            any(.[]; test("^(vars/flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)") | not)
+            any(.[]; test("^(vars/flatcar/|flatcar/|bin/flatcar-|\\.github/workflows/flatcar-)") | not)
           ')
           echo "flatcar_changed=${flatcar_changed}" >> "$GITHUB_OUTPUT"
           echo "ubuntu_changed=${ubuntu_changed}" >> "$GITHUB_OUTPUT"

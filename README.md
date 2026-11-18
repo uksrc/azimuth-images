@@ -1,12 +1,50 @@
 # azimuth-images
 
 This repository contains [Packer](https://www.packer.io/) template definitions
-for building images for use with [Azimuth](https://github.com/azimuth-cloud/azimuth).
+for building images for use with [Azimuth](https://github.com/azimuth-cloud/azimuth-images).
 
 The templates work by provisioning machines in an [OpenStack](https://www.openstack.org/)
 project and configuring them using [Ansible](https://www.ansible.com/) before
 converting to an image. These images are then downloaded from OpenStack and uploaded
 to S3 for distribution in an Azimuth release.
+
+## Pull upstream changes
+
+Keep the repository up date by regularly pulling and merging upstream changes.
+
+Make sure upstream is set to github.com/azimuth-cloud/azimuth-images:
+
+```sh
+git remote -v
+
+origin git@github.com:uksrc/azimuth-images.git (fetch)
+origin git@github.com:uksrc/azimuth-images.git (push)
+upstream https://github.com/azimuth-cloud/azimuth-images (fetch)
+upstream https://github.com/azimuth-cloud/azimuth-images (push)
+```
+
+If upstream is not set add it using:
+
+```sh
+git remote add upstream https://github.com/azimuth-cloud/azimuth-images
+
+git remote -v
+
+git fetch upstream
+```
+
+Check the upstream releases and decide which tag you want to merge e.g. 0.38.0. Create a branch for the changes and merge in the tag:
+
+```sh
+git checkout -b pog-123-merge-upstream-release-0.38.0
+git merge 0.38.0
+```
+
+Carefully check all the changes and resolve any conflicts, being careful to retain local edits where appropriate.
+
+When you are happy commit the changes, push the branch and create an MR. Test images will be automatically built by the pipeline for MRs that are ready for review i.e. not draft. Clean out any old/unused images that are no longer required.
+
+You can also create an image manually.
 
 ## Building an image manually
 
@@ -33,14 +71,12 @@ the required providers installed:
 packer init ./config.pkr.hcl
 ```
 
-Next, create a [Python virtual environment](https://docs.python.org/3/library/venv.html)
-to use and install the Python and Ansible dependencies:
+Next, install [uv](https://docs.astral.sh/uv/) and use it to create a virtual
+environment and install the Python and Ansible dependencies:
 
 ```sh
-python -m venv .venv
+uv sync
 source .venv/bin/activate
-
-pip install -r ./requirements.txt
 
 ansible-galaxy install -f -r requirements.yml
 ```
@@ -82,4 +118,11 @@ docker run --rm \
 
 ```sh
 ansible-lint -c .ansible-lint.yml ansible/
+```
+
+To run the tests and type checks for the Python scripts in `bin/`, use:
+
+```sh
+uv run pytest
+uv run mypy
 ```

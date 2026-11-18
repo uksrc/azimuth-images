@@ -44,6 +44,9 @@ done
 if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
   source "$REPO_ROOT"/bin/ensure-source-image
 fi
+if [[ "${SKIP_SOURCE_IMAGE}" != "true" ]]; then
+  source "$REPO_ROOT"/bin/ensure-source-image
+fi
 
 export PACKER_LOG=1 PKR_VAR_floating_ip PKR_VAR_source_image_name
 PACKER_ARGS=("${PACKER_VAR_FILES_ARGS[@]}" "${PACKER_EXTRA_ARGS[@]}")

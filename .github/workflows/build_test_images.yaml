@@ -2,7 +2,7 @@
 # yamllint disable rule:line-length
 name: Build, publish and test Ubuntu images
 
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   workflow_call:
     secrets:
       OS_CLOUDS:
@@ -17,19 +17,24 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   read_builds:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       builds: ${{ steps.builds-as-json.outputs.builds }}
     permissions:
       contents: read
     steps:
       - name: Check out the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      - name: Setup UV
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+
       - name: Install script dependencies
-        run: pip install -r ./requirements.txt
+        run: |
+          uv sync --locked
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Get builds as JSON
         id: builds-as-json
@@ -38,19 +43,24 @@ jobs:
   ensure_source_image:
     needs:
       - read_builds
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       source_image: ${{ steps.download_source.outputs.source_image_name }}
     permissions:
       contents: read
     steps:
       - name: Check out the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      - name: Setup UV
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
+
       - name: Install script dependencies
-        run: pip install -r ./requirements.txt
+        run: |
+          uv sync --locked
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Write OpenStack credentials
         run: echo "$OS_CLOUDS" > ./clouds.yaml
@@ -70,7 +80,7 @@ jobs:
     needs:
       - read_builds
       - ensure_source_image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -80,12 +90,12 @@ jobs:
       actions: read
       contents: write
       packages: write
-      id-token: write  # required to get an OIDC token for signing
-      security-events: write  # required to upload SARIF files
+      id-token: write # required to get an OIDC token for signing
+      security-events: write # required to upload SARIF files
       checks: write # to write check-runs statuses
     steps:
       - name: Check out the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: recursive
           persist-credentials: false
@@ -94,6 +104,9 @@ jobs:
         run: echo "$OS_CLOUDS" > ./clouds.yaml
         env:
           OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
+
+      - name: Setup UV
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c # v7.0.0
 
       - name: Set up Packer environment
         run: ./bin/setup
