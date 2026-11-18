@@ -17,10 +17,10 @@ Make sure upstream is set to github.com/azimuth-cloud/azimuth-images:
 ```sh
 git remote -v
 
-origin	git@github.com:uksrc/azimuth-images.git (fetch)
-origin	git@github.com:uksrc/azimuth-images.git (push)
-upstream	https://github.com/azimuth-cloud/azimuth-images (fetch)
-upstream	https://github.com/azimuth-cloud/azimuth-images (push)
+origin git@github.com:uksrc/azimuth-images.git (fetch)
+origin git@github.com:uksrc/azimuth-images.git (push)
+upstream https://github.com/azimuth-cloud/azimuth-images (fetch)
+upstream https://github.com/azimuth-cloud/azimuth-images (push)
 ```
 
 If upstream is not set add it using:
