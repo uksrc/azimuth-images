@@ -13,7 +13,8 @@ to S3 for distribution in an Azimuth release.
 Keep the repository up date by regularly pulling and merging upstream changes.
 
 Make sure upstream is set to github.com/azimuth-cloud/azimuth-images:
-```
+
+```sh
 git remote -v
 
 origin	git@github.com:uksrc/azimuth-images.git (fetch)
@@ -21,19 +22,24 @@ origin	git@github.com:uksrc/azimuth-images.git (push)
 upstream	https://github.com/azimuth-cloud/azimuth-images (fetch)
 upstream	https://github.com/azimuth-cloud/azimuth-images (push)
 ```
+
 If upstream is not set add it using:
-```
+
+```sh
 git remote add upstream https://github.com/azimuth-cloud/azimuth-images
 
 git remote -v
 
 git fetch upstream
- ```
-Check the upstream releases and decide which tag you want to merge e.g. 0.38.0. Create a branch for the changes and merge in the tag:
 ```
+
+Check the upstream releases and decide which tag you want to merge e.g. 0.38.0. Create a branch for the changes and merge in the tag:
+
+```sh
 git checkout -b pog-123-merge-upstream-release-0.38.0
 git merge 0.38.0
 ```
+
 Carefully check all the changes and resolve any conflicts, being careful to retain local edits where appropriate.
 
 When you are happy commit the changes, push the branch and create an MR. Test images will be automatically built by the pipeline for MRs that are ready for review i.e. not draft. Clean out any old/unused images that are no longer required.
