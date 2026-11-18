@@ -10,6 +10,11 @@
           - esp4
           - esp6
           - algif_aead
+          - rxrpc
+          - act_pedit
+          - rds
+          - rds_tcp
+          - openvswitch
 
 - name: Import CAPI image playbook
   import_playbook: ../vendor/image-builder/images/capi/ansible/node.yml
