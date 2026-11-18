@@ -10,17 +10,6 @@
           - esp4
           - esp6
           - algif_aead
-    - role: linux-amdgpu
 
 - name: Import CAPI image playbook
   import_playbook: ../vendor/image-builder/images/capi/ansible/node.yml
-
-- name: Persist amdgpu module
-  hosts: all
-  become: true
-  tasks:
-    - name: Persist amdgpu module if installed
-      community.general.modprobe:
-        name: amdgpu
-        persistent: present
-        state: absent
