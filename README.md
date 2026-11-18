@@ -10,7 +10,7 @@ to S3 for distribution in an Azimuth release.
 
 ## Pull upstream changes
 
-Keep the repo up date by regularly pulling and merging upstream changes.
+Keep the repository up date by regularly pulling and merging upstream changes.
 
 Make sure upstream is set to github.com/azimuth-cloud/azimuth-images:
 ```
