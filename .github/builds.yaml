@@ -26,6 +26,6 @@
   template: kubernetes
   var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_36
 
-# - name: kubernetes-1-37-noble
-#   template: kubernetes
-#   var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_37
+- name: kubernetes-1-37-noble
+  template: kubernetes
+  var-files: common,kvm,linux,ubuntu-noble,kubernetes,kubernetes_1_37
